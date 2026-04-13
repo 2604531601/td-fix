@@ -1,0 +1,57 @@
+{
+  "repo": "",
+  "defaultTargetBranch": "master",
+  "branchPrefix": "fix",
+  "integrations": {
+    "tdQuery": {
+      "command": "",
+      "notes": "Shell command that returns JSON to stdout. The TD id will be appended as the last argument."
+    },
+    "createMr": {
+      "command": "",
+      "notes": "Shell command that reads MR payload JSON from stdin and returns result JSON to stdout."
+    }
+  },
+  "verify": {
+    "lint": "",
+    "typecheck": "",
+    "test": ""
+  },
+  "paths": {
+    "src": [
+      "src"
+    ],
+    "tests": [
+      "tests",
+      "__tests__"
+    ],
+    "docs": [
+      "docs",
+      "knowledge"
+    ]
+  },
+  "knowledgeBase": {
+    "docFiles": [
+      "项目概述.md",
+      "环境配置与部署.md",
+      "系统架构设计.md",
+      "服务层详解.md"
+    ],
+    "maxCandidateFiles": 12,
+    "maxSimilarChanges": 5
+  },
+  "riskRules": {
+    "maxChangedFiles": 8,
+    "forbiddenPaths": [
+      "db/migration",
+      "api/public"
+    ]
+  },
+  "mr": {
+    "draft": true,
+    "labels": [
+      "ai-fix",
+      "td"
+    ]
+  }
+}

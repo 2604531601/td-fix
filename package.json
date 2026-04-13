@@ -1,0 +1,23 @@
+{
+  "name": "@internal/td-fix-skill",
+  "version": "0.1.0",
+  "private": true,
+  "description": "AI-native TD fix skill scaffold for GitLab repositories",
+  "type": "module",
+  "bin": {
+    "td-fix": "./scripts/td_fix_entry.js"
+  },
+  "scripts": {
+    "td:plan": "node ./scripts/td_fix_entry.js plan",
+    "td:run": "node ./scripts/td_fix_entry.js run",
+    "td:query": "node ./scripts/query_td.js",
+    "td:context": "node ./scripts/build_context.js",
+    "td:verify": "node ./scripts/verify_runner.js",
+    "mr:create": "node ./scripts/create_mr.js",
+    "lint": "node -e \"console.log('TODO: add lint command')\"",
+    "test": "node -e \"console.log('TODO: add test command')\""
+  },
+  "engines": {
+    "node": ">=18"
+  }
+}
