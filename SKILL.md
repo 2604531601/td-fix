@@ -1,59 +1,88 @@
-# td-fix
+---
+name: td-fix
+description: Handle a TD-driven GitLab code-fix workflow in an AI CLI. Use when the user asks to fix a TD or defect ticket and wants the standard flow of querying the TD, building repository context, creating a fix branch, validating changes, and preparing a merge request.
+metadata:
+  short-description: Fix a TD with the standard workflow
+---
 
-## 目标
+# TD Fix
 
-当用户在 AI CLI 中表达“修 TD”时，按统一流程完成：
+Use this skill when the user wants to fix a TD or defect ticket in a GitLab repository through a standard AI-assisted workflow.
 
-1. 查询 TD
-2. 构建上下文
-3. 生成修复计划
-4. 创建分支
-5. 修改代码
-6. 运行验证
-7. 汇总 MR 信息
-8. 创建 GitLab MR
+## When To Use
 
-## 触发条件
+Trigger this skill when the user asks for any of the following:
 
-以下表达可触发本 skill：
+- fix a TD such as `TD-1234`
+- handle a defect ticket with the normal repair flow
+- create a fix branch, validate changes, and prepare a GitLab MR
+- continue a TD repair workflow that already started
 
-- `修 TD-1234`
-- `处理 TD-1234`
-- `帮我修这个 TD`
-- `按照标准流程修复这个缺陷单`
+Do not use this skill for:
 
-## 执行规则
+- broad repository exploration without a TD or defect target
+- CI-only debugging with no TD context
+- publishing unrelated local changes
 
-必须遵守以下顺序：
+## Workflow
 
-1. 先调用 TD 查询能力，拿到结构化任务信息。
-2. 再构建本次修复的上下文包，不允许直接跳到改代码。
-3. 先创建修复分支，再做代码修改。
-4. 验证未通过时，不允许创建 MR。
-5. 如果变更超出配置中的风险阈值，必须暂停并要求人工确认。
+Follow this order strictly:
 
-## 推荐调用顺序
+1. Use the installed TD query skill to fetch the TD details and normalize the result into a structured task object.
+2. Build a focused repository context packet before modifying code.
+3. Generate a repair plan with expected file scope, tests, and risk notes.
+4. Create a dedicated fix branch before editing files.
+5. Modify code only within the planned scope.
+6. Run repository validation commands.
+7. Prepare MR title and description.
+8. Use the installed MR creation skill only after validation is acceptable.
 
-1. 调用现有 `td-query` skill，获取 TD 详情。
-2. 调用 `scripts/build_context.js`，生成 `Fix Context Packet`。
-3. 基于 TD 与上下文生成修复计划。
-4. 调用 `scripts/create_branch.js`，生成并切换到修复分支。
-5. 在修复计划范围内修改代码。
-6. 调用 `scripts/verify_runner.js` 运行 lint/typecheck/test。
-7. 调用 `scripts/collect_mr_payload.js` 生成 MR 标题与描述。
-8. 调用现有 `create-mr` skill 创建 GitLab MR。
+## Required Checks
 
-## 失败处理
+- Do not skip TD parsing.
+- Do not skip context building.
+- Do not create an MR when validation clearly fails.
+- Pause for human confirmation when the change exceeds configured risk rules.
 
-- 无法解析 TD：终止并返回原因
-- 上下文不足：先返回缺失信息，不直接硬改
-- 验证失败：停留在本地修复，不创建 MR
-- 高风险改动：暂停等待人工确认
+## Tooling And Resources
 
-## 当前约定
+Use these local resources:
 
-- 默认配置文件：`config/default.config.json`
-- 仓库级覆盖配置：目标仓库根目录下 `.td-fix.json`
-- 脚本入口：`scripts/td_fix_entry.js`
-- 外部 TD skill 接入：`integrations.tdQuery.command` 或环境变量 `TD_FIX_TD_QUERY_CMD`
-- 外部 MR skill 接入：`integrations.createMr.command` 或环境变量 `TD_FIX_CREATE_MR_CMD`
+- `scripts/build_context.js` to assemble the fix context packet
+- `scripts/create_branch.js` to generate the fix branch name
+- `scripts/verify_runner.js` to load repository validation commands
+- `scripts/collect_mr_payload.js` to assemble MR metadata
+- `scripts/query_td.js` to document and normalize TD skill usage
+- `scripts/create_mr.js` to document and normalize MR skill usage
+
+Use these configuration sources:
+
+- `assets/default.config.json` for defaults
+- target repository `.td-fix.json` for overrides
+- `installedSkills.tdQuery.name` for the installed TD query skill name
+- `installedSkills.createMr.name` for the installed MR creation skill name
+- `orchestration.mode` for the default agent strategy
+
+Read these references only when needed:
+
+- `references/repository-setup.md` when wiring the skill into a target repository
+- `assets/plan.prompt.md` when you need a structured repair-plan template
+- `assets/mr_description.md` when you need a draft MR description template
+- `assets/review_fix.prompt.md` when you need a review-fix template
+
+## Failure Handling
+
+- If TD parsing fails, stop and report the blocker.
+- If repository context is too weak, stop and ask for the missing repository context.
+- If validation fails, keep working locally and do not create the MR yet.
+- If the requested repair is high risk, pause and ask for confirmation before continuing.
+
+## Orchestration Guidance
+
+Default to a single orchestrating agent. This workflow does not require multi-agent coordination in the first version.
+
+Introduce multi-agent only when there is a clear, bounded benefit such as:
+
+- parallel repository context gathering
+- a separate review-only pass after coding
+- a separate verification-only pass after coding

@@ -6,47 +6,31 @@ import { pathToFileURL } from "node:url";
 
 import { parseCliArgs } from "./lib/cli.js";
 import { loadConfig } from "./lib/config.js";
-import { runJsonCommand } from "./lib/external_skill.js";
 
-function buildMockResult(payload, command) {
+function buildSkillInvocation(payload, skillName) {
   return {
-    status: "mock",
-    source: "create-mr-skill",
-    command,
+    status: "skill-required",
+    source: "installed-skill",
+    skillName,
     payload,
-    result: {
-      mr_url: "",
-      mr_iid: "",
-      state: "not-created"
-    }
+    notes: [
+      `Use the installed skill "${skillName}" conversationally to create or update the GitLab MR.`,
+      "Do not assume the MR creation skill can be executed as a shell command.",
+      "Pass the MR payload fields as structured context when invoking the installed skill."
+    ]
   };
 }
 
-export async function createMr(payload, options = {}) {
+export function createMr(payload, options = {}) {
   const { config } = loadConfig(options);
-  const command = process.env.TD_FIX_CREATE_MR_CMD
-    || config.integrations?.createMr?.command
-    || "";
+  const skillName = process.env.TD_FIX_CREATE_MR_SKILL
+    || config.installedSkills?.createMr?.name
+    || "create-mr";
 
-  if (!command) {
-    return buildMockResult(payload, command);
-  }
-
-  const result = await runJsonCommand(command, {
-    cwd: options.cwd,
-    stdin: JSON.stringify(payload, null, 2)
-  });
-
-  return {
-    status: "ok",
-    source: "create-mr-skill",
-    command,
-    payload,
-    result
-  };
+  return buildSkillInvocation(payload, skillName);
 }
 
-async function main() {
+function main() {
   const { positional, flags } = parseCliArgs(process.argv.slice(2));
   const payloadPath = flags["payload-file"] || positional[0];
 
@@ -56,7 +40,7 @@ async function main() {
   }
 
   const payload = JSON.parse(fs.readFileSync(payloadPath, "utf8"));
-  const result = await createMr(payload, {
+  const result = createMr(payload, {
     cwd: flags.cwd,
     configPath: flags.config
   });
@@ -65,8 +49,10 @@ async function main() {
 }
 
 if (import.meta.url === pathToFileURL(process.argv[1]).href) {
-  main().catch((error) => {
+  try {
+    main();
+  } catch (error) {
     console.error(error.message);
     process.exit(1);
-  });
+  }
 }

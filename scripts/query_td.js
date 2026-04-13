@@ -2,10 +2,10 @@
 
 import process from "node:process";
 import { pathToFileURL } from "node:url";
+import fs from "node:fs";
 
 import { parseCliArgs } from "./lib/cli.js";
 import { loadConfig } from "./lib/config.js";
-import { runJsonCommand } from "./lib/external_skill.js";
 
 function normalizeTaskSpec(tdId, rawTaskSpec = {}) {
   return {
@@ -22,49 +22,55 @@ function normalizeTaskSpec(tdId, rawTaskSpec = {}) {
       : [],
     priority: rawTaskSpec.priority || "",
     risk_level: rawTaskSpec.risk_level || "medium",
-    source: rawTaskSpec.source || "td-query-skill"
+    source: rawTaskSpec.source || "td-query-skill",
+    notes: Array.isArray(rawTaskSpec.notes) ? rawTaskSpec.notes : []
   };
 }
 
-function buildMockTaskSpec(tdId, command) {
+function buildSkillInvocation(tdId, skillName) {
   return normalizeTaskSpec(tdId, {
-    source: "td-query-skill",
-    command,
-    title: "",
-    description: ""
+    source: "installed-skill",
+    notes: [
+      `Use the installed skill "${skillName}" conversationally to fetch TD details.`,
+      "Do not assume the TD query skill can be executed as a shell command.",
+      "After the skill returns the TD details, normalize them into this task object shape."
+    ]
   });
 }
 
-export async function queryTd(tdId, options = {}) {
+export function queryTd(tdId, options = {}) {
   const { config } = loadConfig(options);
-  const baseCommand = process.env.TD_FIX_TD_QUERY_CMD
-    || config.integrations?.tdQuery?.command
-    || "";
+  const skillName = process.env.TD_FIX_TD_QUERY_SKILL
+    || config.installedSkills?.tdQuery?.name
+    || "td-detail-query";
 
-  if (!baseCommand) {
-    return buildMockTaskSpec(tdId, baseCommand);
+  if (options.rawTaskSpec) {
+    return normalizeTaskSpec(tdId, options.rawTaskSpec);
   }
 
-  const command = `${baseCommand} ${tdId}`;
-  const result = await runJsonCommand(command, { cwd: options.cwd });
-
-  return normalizeTaskSpec(tdId, result);
+  return buildSkillInvocation(tdId, skillName);
 }
 
-async function main() {
+function main() {
   const { positional, flags } = parseCliArgs(process.argv.slice(2));
   const tdId = positional[0] || "TD-XXXX";
-  const taskSpec = await queryTd(tdId, {
+  const rawTaskSpec = flags["input-file"]
+    ? JSON.parse(fs.readFileSync(flags["input-file"], "utf8"))
+    : null;
+  const taskSpec = queryTd(tdId, {
     cwd: flags.cwd,
-    configPath: flags.config
+    configPath: flags.config,
+    rawTaskSpec
   });
 
   console.log(JSON.stringify(taskSpec, null, 2));
 }
 
 if (import.meta.url === pathToFileURL(process.argv[1]).href) {
-  main().catch((error) => {
+  try {
+    main();
+  } catch (error) {
     console.error(error.message);
     process.exit(1);
-  });
+  }
 }

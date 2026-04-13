@@ -2,15 +2,19 @@
   "repo": "",
   "defaultTargetBranch": "master",
   "branchPrefix": "fix",
-  "integrations": {
+  "installedSkills": {
     "tdQuery": {
-      "command": "",
-      "notes": "Shell command that returns JSON to stdout. The TD id will be appended as the last argument."
+      "name": "td-detail-query",
+      "notes": "Installed skill name used conversationally inside the AI CLI to query TD details."
     },
     "createMr": {
-      "command": "",
-      "notes": "Shell command that reads MR payload JSON from stdin and returns result JSON to stdout."
+      "name": "create-mr",
+      "notes": "Installed skill name used conversationally inside the AI CLI to create a GitLab MR."
     }
+  },
+  "orchestration": {
+    "mode": "single-agent",
+    "notes": "Default to a single orchestrating agent. Add multi-agent only after the baseline workflow is stable."
   },
   "verify": {
     "lint": "",

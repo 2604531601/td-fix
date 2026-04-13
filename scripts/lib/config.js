@@ -6,7 +6,7 @@ const DEFAULT_CONFIG_PATH = path.resolve(
   path.dirname(fileURLToPath(import.meta.url)),
   "..",
   "..",
-  "config",
+  "assets",
   "default.config.json"
 );
 

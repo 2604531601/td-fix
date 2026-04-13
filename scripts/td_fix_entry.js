@@ -36,7 +36,7 @@ async function main() {
   };
 
   const taskSpec = tdId
-    ? await queryTd(tdId, sharedOptions)
+    ? queryTd(tdId, sharedOptions)
     : null;
   const context = tdId
     ? buildContext(tdId, sharedOptions)
@@ -61,14 +61,7 @@ async function main() {
   const branchResult = createBranch(tdId, taskSpec?.title || tdId, sharedOptions);
   const verifyResult = runVerify(sharedOptions);
   const mrPayload = collectMrPayload(tdId, branchResult.branch, sharedOptions);
-  const createMrRequested = Boolean(flags["create-mr"]);
-  const mrResult = createMrRequested
-    ? await createMr(mrPayload, sharedOptions)
-    : {
-        status: "skipped",
-        reason: "Pass --create-mr to invoke the external create-mr skill.",
-        payload: mrPayload
-      };
+  const mrResult = createMr(mrPayload, sharedOptions);
 
   console.log(JSON.stringify({
     action,
@@ -80,9 +73,11 @@ async function main() {
     verify: verifyResult,
     mr: mrResult,
     nextSteps: [
+      "use the installed TD query skill to fetch the real TD details",
       "wire code modification step",
       "wire real verify commands",
-      "replace placeholder MR title and description"
+      "replace placeholder MR title and description",
+      "use the installed MR creation skill after validation passes"
     ]
   }, null, 2));
 }
