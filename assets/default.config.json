@@ -2,6 +2,12 @@
   "repo": "",
   "defaultTargetBranch": "master",
   "branchPrefix": "fix",
+  "branchNaming": {
+    "mode": "from-target-branch-template",
+    "replaceFirstSegmentWith": "git-user-digits",
+    "replaceLastSegmentWith": "feature-slug",
+    "fallbackPattern": "fix/{td_id}-{feature_slug}"
+  },
   "installedSkills": {
     "tdQuery": {
       "name": "td-detail-query",
@@ -16,10 +22,18 @@
     "mode": "single-agent",
     "notes": "Default to a single orchestrating agent. Add multi-agent only after the baseline workflow is stable."
   },
+  "planConfirmation": {
+    "required": true,
+    "notes": "Always present the repair plan to the user and wait for confirmation before modifying code."
+  },
+  "cache": {
+    "directory": ".td-fix-cache"
+  },
   "verify": {
     "lint": "",
     "typecheck": "",
-    "test": ""
+    "test": "",
+    "strategy": "self-authored"
   },
   "paths": {
     "src": [
@@ -41,8 +55,24 @@
       "系统架构设计.md",
       "服务层详解.md"
     ],
+    "docExtensions": [
+      ".md",
+      ".mdx"
+    ],
+    "codeExtensions": [
+      ".js",
+      ".jsx",
+      ".ts",
+      ".tsx",
+      ".java",
+      ".py",
+      ".go"
+    ],
     "maxCandidateFiles": 12,
     "maxSimilarChanges": 5
+  },
+  "history": {
+    "maxCommits": 200
   },
   "riskRules": {
     "maxChangedFiles": 8,
@@ -53,6 +83,7 @@
   },
   "mr": {
     "draft": true,
+    "targetBranchConfirmation": true,
     "labels": [
       "ai-fix",
       "td"

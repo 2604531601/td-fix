@@ -1,4 +1,4 @@
 interface:
   display_name: "TD Fix"
   short_description: "Fix a TD in GitLab with a standard workflow"
-  default_prompt: "Use $td-fix to handle a TD-driven GitLab repair flow. Prefer the installed TD detail query skill and MR creation skill, then build repository context, create a fix branch, validate changes, and prepare a merge request."
+  default_prompt: "Use $td-fix to handle a TD-driven GitLab repair flow. Resolve bundled scripts relative to the td-fix skill directory, not the target repository. Prefer the installed TD detail query skill and MR creation skill, then build repository context, present a repair plan for approval, create a fix branch, validate changes, ask for the merge target branch, and prepare a merge request."

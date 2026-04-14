@@ -8,7 +8,7 @@ import { loadConfig } from "./lib/config.js";
 
 export function collectMrPayload(tdId, branch, options = {}) {
   const { config } = loadConfig(options);
-  const targetBranch = config.defaultTargetBranch || "master";
+  const targetBranch = options.targetBranch || config.defaultTargetBranch || "master";
   const labels = config.mr?.labels || ["ai-fix", "td"];
   const repo = config.repo || "";
 
@@ -29,7 +29,8 @@ function main() {
   const branch = positional[1] || "fix/TD-XXXX-update";
   const payload = collectMrPayload(tdId, branch, {
     cwd: flags.cwd,
-    configPath: flags.config
+    configPath: flags.config,
+    targetBranch: flags["target-branch"]
   });
 
   console.log(JSON.stringify(payload, null, 2));

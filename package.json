@@ -8,7 +8,12 @@
     "td-fix": "./scripts/td_fix_entry.js"
   },
   "scripts": {
+    "kb:docs": "node ./scripts/build_docs_index.js",
+    "kb:code": "node ./scripts/build_code_index.js",
+    "kb:history": "node ./scripts/build_history_index.js",
+    "kb:all": "node ./scripts/build_kb_all.js",
     "td:plan": "node ./scripts/td_fix_entry.js plan",
+    "td:execute": "node ./scripts/td_fix_entry.js execute",
     "td:run": "node ./scripts/td_fix_entry.js run",
     "td:query": "node ./scripts/query_td.js",
     "td:context": "node ./scripts/build_context.js",

@@ -52,6 +52,7 @@ export function loadConfig(options = {}) {
     ? path.resolve(cwd, options.configPath)
     : null;
   const repoConfigPath = explicitConfigPath ?? findRepoConfig(cwd);
+  const repoRoot = repoConfigPath ? path.dirname(repoConfigPath) : cwd;
 
   const defaultConfig = readJson(DEFAULT_CONFIG_PATH);
   const repoConfig = repoConfigPath && fs.existsSync(repoConfigPath)
@@ -59,9 +60,15 @@ export function loadConfig(options = {}) {
     : {};
 
   const config = deepMerge(defaultConfig, repoConfig);
+  const cacheDir = path.resolve(
+    repoRoot,
+    config.cache?.directory || ".td-fix-cache"
+  );
 
   return {
     config,
+    repoRoot,
+    cacheDir,
     configPaths: {
       defaultConfigPath: DEFAULT_CONFIG_PATH,
       repoConfigPath

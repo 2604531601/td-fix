@@ -1,0 +1,9 @@
+{
+  "defaultTargetBranch": "A/B/C",
+  "branchNaming": {
+    "mode": "from-target-branch-template",
+    "replaceFirstSegmentWith": "git-user-digits",
+    "replaceLastSegmentWith": "feature-slug",
+    "fallbackPattern": "fix/{td_id}-{feature_slug}"
+  }
+}
