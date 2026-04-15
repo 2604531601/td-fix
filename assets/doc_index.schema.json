@@ -1,0 +1,122 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "td-fix/doc-index.schema.json",
+  "title": "td-fix docs-index",
+  "type": "object",
+  "required": ["generatedAt", "repoRoot", "documents"],
+  "properties": {
+    "generatedAt": {
+      "type": "string"
+    },
+    "repoRoot": {
+      "type": "string"
+    },
+    "documents": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "path",
+          "title",
+          "category",
+          "module",
+          "summary",
+          "keywords",
+          "applies_to",
+          "related_code_hints",
+          "confidence"
+        ],
+        "properties": {
+          "path": {
+            "type": "string",
+            "minLength": 1
+          },
+          "title": {
+            "type": "string",
+            "minLength": 1
+          },
+          "category": {
+            "type": "string",
+            "enum": ["business", "technical", "testing", "repository", "general"]
+          },
+          "module": {
+            "type": "string",
+            "minLength": 1
+          },
+          "module_hint": {
+            "type": "string"
+          },
+          "tags": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "summary": {
+            "type": "string",
+            "minLength": 20,
+            "maxLength": 260
+          },
+          "keywords": {
+            "type": "array",
+            "minItems": 3,
+            "maxItems": 12,
+            "items": {
+              "type": "string",
+              "minLength": 1
+            }
+          },
+          "applies_to": {
+            "type": "array",
+            "minItems": 1,
+            "maxItems": 6,
+            "items": {
+              "type": "string",
+              "enum": [
+                "业务异常",
+                "流程定位",
+                "模块初筛",
+                "接口异常",
+                "字段缺失",
+                "配置排查",
+                "测试补充",
+                "回归分析",
+                "外部接入排查",
+                "数据结构定位"
+              ]
+            }
+          },
+          "related_code_hints": {
+            "type": "array",
+            "maxItems": 8,
+            "items": {
+              "type": "string",
+              "minLength": 1
+            }
+          },
+          "confidence": {
+            "type": "number",
+            "minimum": 0,
+            "maximum": 1
+          },
+          "generation": {
+            "type": "object",
+            "properties": {
+              "method": {
+                "type": "string"
+              },
+              "status": {
+                "type": "string"
+              }
+            }
+          },
+          "excerpt": {
+            "type": "string"
+          }
+        },
+        "additionalProperties": true
+      }
+    }
+  },
+  "additionalProperties": true
+}

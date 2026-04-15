@@ -9,6 +9,7 @@
   },
   "scripts": {
     "kb:docs": "node ./scripts/build_docs_index.js",
+    "kb:docs:validate": "node ./scripts/validate_docs_index.js",
     "kb:code": "node ./scripts/build_code_index.js",
     "kb:history": "node ./scripts/build_history_index.js",
     "kb:all": "node ./scripts/build_kb_all.js",

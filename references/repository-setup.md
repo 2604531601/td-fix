@@ -104,6 +104,8 @@ Use multi-agent only after the single-agent workflow is stable and only for boun
 ## Default Assets
 
 - `assets/default.config.json`
+- `assets/doc_index.schema.json`
+- `assets/doc_index.prompt.md`
 - `assets/plan.prompt.md`
 - `assets/mr_description.md`
 - `assets/review_fix.prompt.md`
@@ -185,7 +187,19 @@ node /path/to/td-fix/scripts/build_code_index.js --cwd /path/to/target-repo
 node /path/to/td-fix/scripts/build_history_index.js --cwd /path/to/target-repo
 node /path/to/td-fix/scripts/build_kb_all.js --cwd /path/to/target-repo
 node /path/to/td-fix/scripts/build_context.js TD-1234 --cwd /path/to/target-repo
+node /path/to/td-fix/scripts/validate_docs_index.js --cwd /path/to/target-repo
 ```
+
+## AI Docs Index Enrichment
+
+For small repository knowledge bases, prefer:
+
+1. Run `build_docs_index.js` to collect stable document candidates.
+2. Use `assets/doc_index.prompt.md` as the AI prompt template.
+3. Require the AI output to follow `assets/doc_index.schema.json`.
+4. Run `validate_docs_index.js` before trusting the enriched `docs-index.json`.
+
+The rule-based `build_docs_index.js` output should be treated as a fallback candidate set, not as the final high-quality document understanding layer.
 
 ## Workflow Commands
 

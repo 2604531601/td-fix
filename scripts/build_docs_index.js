@@ -61,13 +61,37 @@ function inferCategory(relativePath) {
   return "general";
 }
 
-function inferModule(relativePath) {
+function inferAppliesTo(category) {
+  switch (category) {
+    case "business":
+      return ["业务异常", "流程定位", "模块初筛"];
+    case "technical":
+      return ["接口异常", "字段缺失", "数据结构定位"];
+    case "testing":
+      return ["测试补充", "回归分析"];
+    case "repository":
+      return ["模块初筛", "配置排查"];
+    default:
+      return ["模块初筛"];
+  }
+}
+
+function inferModuleHint(relativePath) {
   const segments = relativePath.split("/");
   if (segments.length >= 2) {
     return segments[segments.length - 2];
   }
 
   return "general";
+}
+
+function buildExcerpt(lines, maxLines = 12) {
+  return lines
+    .slice(0, maxLines)
+    .join(" ")
+    .replace(/\s+/g, " ")
+    .trim()
+    .slice(0, 1200);
 }
 
 export function buildDocsIndex(options = {}) {
@@ -110,15 +134,29 @@ export function buildDocsIndex(options = {}) {
     const lines = content.split(/\r?\n/).map((line) => line.trim()).filter(Boolean);
     const title = lines[0]?.replace(/^#+\s*/, "") || path.basename(relativePath);
     const summary = summarizeText(lines.slice(0, 6).join(" "), 260);
+    const moduleHint = inferModuleHint(relativePath);
+    const tags = inferDocTags(relativePath);
+    const relatedCodeHints = uniqueTokens(title, relativePath)
+      .filter((item) => !["doc", "kb", "md"].includes(item))
+      .slice(0, 5);
 
     return {
       path: relativePath,
       title,
       category: inferCategory(relativePath),
-      module: inferModule(relativePath),
-      tags: inferDocTags(relativePath),
+      module: moduleHint,
+      module_hint: moduleHint,
+      tags,
       summary,
-      keywords: uniqueTokens(title, summary, relativePath)
+      keywords: uniqueTokens(title, summary, relativePath),
+      applies_to: inferAppliesTo(inferCategory(relativePath)),
+      related_code_hints: relatedCodeHints,
+      confidence: 0.35,
+      excerpt: buildExcerpt(lines),
+      generation: {
+        method: "fallback-rule-based",
+        status: "needs-ai-enrichment"
+      }
     };
   });
 
